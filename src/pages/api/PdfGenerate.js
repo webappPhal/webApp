@@ -136,6 +136,7 @@ export default async function pdfGenerate(req, res) {
       executablePath: await chromium.executablePath,
       headless: chromium.headless,
     });
+
     const page = await browser.newPage();
     const pdfName = name + date + passNo;
     const fPdfName = pdfName.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, "-");
