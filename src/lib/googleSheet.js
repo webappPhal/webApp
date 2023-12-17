@@ -1,9 +1,5 @@
 import { google } from "googleapis";
-console.log(
-  process.env.GOOGLE_SHEET_MAIL,
-  process.env.GOOGLE_SHEET_KEY,
-  "google sheet"
-);
+
 export const authentication = async () => {
   const auth = new google.auth.GoogleAuth({
     credentials: {

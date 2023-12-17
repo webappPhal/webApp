@@ -4,7 +4,9 @@ const path = require("path");
 import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 const nodemailer = require("nodemailer");
-import puppeteer from "puppeteer";
+// import puppeteer from "puppeteer";
+const puppeteer = require("puppeteer-core");
+const chrome = require("chrome-aws-lambda");
 import handlers from "handlebars";
 import qrcode from "qrcode";
 import { connectToDatabase } from "../../lib/mongodb";
@@ -24,12 +26,6 @@ const formatDateString = (dateString) => {
   const formattedDate = new Date(dateString).toLocaleString("en-US", options);
   return formattedDate;
 };
-
-const browser = await puppeteer.launch({
-  args: chrome.args,
-  executablePath: await chrome.executablePath,
-  headless: chrome.headless,
-});
 
 // Function to generate a 4-digit random number as a string
 const generateShortHash = (input) => {
@@ -128,11 +124,10 @@ export default async function pdfGenerate(req, res) {
       qr,
     });
 
-    let browser = null;
-    // simulate a chrome browser with puppeteer and navigate to a new page
-    browser = await puppeteer.launch({
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      headless: true,
+    const browser = await puppeteer.launch({
+      args: chrome.args,
+      executablePath: await chrome.executablePath,
+      headless: chrome.headless,
     });
 
     const page = await browser.newPage();
