@@ -5,6 +5,7 @@ import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 const nodemailer = require("nodemailer");
 import puppeteer from "puppeteer-core";
+import chrome from "chrome-aws-lambda";
 import handlers from "handlebars";
 import qrcode from "qrcode";
 import { connectToDatabase } from "../../lib/mongodb";
@@ -124,9 +125,8 @@ export default async function pdfGenerate(req, res) {
 
     // simulate a chrome browser with puppeteer and navigate to a new page
     const browser = await puppeteer.launch({
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      executablePath:
-        process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/chromium-browser",
+      args: [...chrome.args, "--no-sandbox", "--disable-setuid-sandbox"],
+      executablePath: await chrome.executablePath,
     });
     const page = await browser.newPage();
     const pdfName = name + date + passNo;
