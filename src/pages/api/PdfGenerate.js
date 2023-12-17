@@ -1,5 +1,6 @@
 const { google } = require("googleapis");
 const fs = require("fs");
+const path = require("path");
 import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 const nodemailer = require("nodemailer");
