@@ -4,9 +4,7 @@ const path = require("path");
 import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 const nodemailer = require("nodemailer");
-// import puppeteer from "puppeteer";
-const puppeteer = require("puppeteer-core");
-const chrome = require("chrome-aws-lambda");
+import puppeteer from "puppeteer";
 import handlers from "handlebars";
 import qrcode from "qrcode";
 import { connectToDatabase } from "../../lib/mongodb";
@@ -124,12 +122,8 @@ export default async function pdfGenerate(req, res) {
       qr,
     });
 
-    const browser = await puppeteer.launch({
-      args: chrome.args,
-      executablePath: await chrome.executablePath,
-      headless: chrome.headless,
-    });
-
+    // simulate a chrome browser with puppeteer and navigate to a new page
+    const browser = await puppeteer.launch();
     const page = await browser.newPage();
     const pdfName = name + date + passNo;
     const fPdfName = pdfName.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, "-");
@@ -150,12 +144,13 @@ export default async function pdfGenerate(req, res) {
     fs.mkdirSync("./public/pdf", { recursive: true });
     fs.writeFileSync(`./public/pdf/${fPdfName}.pdf`, pdf);
 
-    if (browser !== null) {
-      await browser.close();
-    }
+    await browser.close();
     // Upload PDF to Google Drive
     const auth = new google.auth.GoogleAuth({
-      keyFile: "formdata.json",
+      credentials: {
+        client_email: process.env.GOOGLE_SHEET_MAIL,
+        private_key: process.env.GOOGLE_SHEET_KEY.replace(/\\n/g, "\n"),
+      },
       scopes: "https://www.googleapis.com/auth/drive.file",
     });
     // const authClient = await auth.getClient({
