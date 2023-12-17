@@ -125,6 +125,8 @@ export default async function pdfGenerate(req, res) {
     // simulate a chrome browser with puppeteer and navigate to a new page
     const browser = await puppeteer.launch({
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      executablePath:
+        process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/chromium-browser",
     });
     const page = await browser.newPage();
     const pdfName = name + date + passNo;
