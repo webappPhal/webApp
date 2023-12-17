@@ -4,6 +4,7 @@ const path = require("path");
 import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 const nodemailer = require("nodemailer");
+import chromium from "chrome-aws-lambda";
 import puppeteer from "puppeteer";
 import handlers from "handlebars";
 import qrcode from "qrcode";
@@ -127,12 +128,14 @@ export default async function pdfGenerate(req, res) {
       cubicContent,
       qr,
     });
-    const launchOptions = {
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      headless: true,
-    };
+
+    let browser = null;
     // simulate a chrome browser with puppeteer and navigate to a new page
-    const browser = await puppeteer.launch(launchOptions);
+    browser = await puppeteer.launch({
+      args: chromium.args,
+      executablePath: await chromium.executablePath,
+      headless: chromium.headless,
+    });
     const page = await browser.newPage();
     const pdfName = name + date + passNo;
     const fPdfName = pdfName.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, "-");
@@ -153,7 +156,9 @@ export default async function pdfGenerate(req, res) {
     fs.mkdirSync("./public/pdf", { recursive: true });
     fs.writeFileSync(`./public/pdf/${fPdfName}.pdf`, pdf);
 
-    await browser.close();
+    if (browser !== null) {
+      await browser.close();
+    }
     // Upload PDF to Google Drive
     const auth = new google.auth.GoogleAuth({
       keyFile: "formdata.json",
