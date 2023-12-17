@@ -101,10 +101,10 @@ export default async function pdfGenerate(req, res) {
   const qr = await generateQR(qrCodeData);
   console.log(qrCodeData);
   const { sheets } = await authentication();
-
+  const filePath = path.join(process.cwd(), "src", "template", "pdf.html");
   try {
     // read our invoice-template.html file using node fs module
-    const file = fs.readFileSync("/src/template/pdf.html", "utf8");
+    const file = fs.readFileSync(filePath, "utf8");
     // const qrCodeHtml = `<img src="${qr}" alt="QR Code" style="width: 200px; height: 200px;" />`;
     // compile the file with handlebars and inject the customerName variable
     const template = handlers.compile(`${file}`);
