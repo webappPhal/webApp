@@ -245,6 +245,7 @@ export default async function pdfGenerate(req, res) {
 
     res.status(200).json({ message: "file uploaded", qr: qr, status: 200 });
   } catch (err) {
+    console.log(err);
     res.status(500).json({ message: err.message });
   }
 }

@@ -8,7 +8,7 @@
 
 # testing
 /coverage
-
+/formdata.json
 # next.js
 /.next/
 /out/
