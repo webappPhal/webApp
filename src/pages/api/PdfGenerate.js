@@ -25,6 +25,12 @@ const formatDateString = (dateString) => {
   return formattedDate;
 };
 
+const browser = await puppeteer.launch({
+  args: chrome.args,
+  executablePath: await chrome.executablePath,
+  headless: chrome.headless,
+});
+
 // Function to generate a 4-digit random number as a string
 const generateShortHash = (input) => {
   const hash = crypto.createHash("sha1").update(input).digest("hex");
@@ -121,9 +127,12 @@ export default async function pdfGenerate(req, res) {
       cubicContent,
       qr,
     });
-
+    const launchOptions = {
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      headless: true,
+    };
     // simulate a chrome browser with puppeteer and navigate to a new page
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch(launchOptions);
     const page = await browser.newPage();
     const pdfName = name + date + passNo;
     const fPdfName = pdfName.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, "-");
