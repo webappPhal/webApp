@@ -1,4 +1,5 @@
 import { MongoClient } from "mongodb";
+import "dotenv/config";
 
 if (!process.env.MONGODB_URI) {
   throw new Error('Invalid environment variable: "MONGODB_URI"');
@@ -47,7 +48,7 @@ export async function connectToDatabase() {
   // Connect to cluster
   let client = new MongoClient(uri);
   await client.connect();
-  let db = client.db("learnbay");
+  let db = client.db("formApp");
 
   // set cache
   cachedClient = client;

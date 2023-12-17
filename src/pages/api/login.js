@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
   try {
     await client.connect();
-    const col = client.db("learnbay").collection("users");
+    const col = client.db("formApp").collection("users");
     let user = await col.findOne({ email: username });
 
     // If no username, user doesn't exist

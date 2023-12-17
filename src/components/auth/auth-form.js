@@ -1,5 +1,4 @@
 import { useState, useRef } from "react";
-import classes from "./auth-form.module.css";
 import { login } from "../../lib/auth";
 import { useRouter } from "next/router";
 
@@ -54,40 +53,45 @@ function AuthForm() {
   }
 
   return (
-    <section className={classes.auth}>
-      <h1> Login</h1>
-      <form onSubmit={submitHandler}>
-        <div className={classes.control}>
+    <section
+      className="flex items-center justify-center flex-col bg-blur-1 saturate-167 bg-[#fff5] border border-gray-300
+    w-max rounded-lg px-6 py-10"
+    >
+      <h1 className="text-2xl font-bold "> Login</h1>
+      <form onSubmit={submitHandler} className="flex flex-col  rounded-xl">
+        <div className="flex flex-col mb-3">
           <label htmlFor="email">Your Email</label>
           <input
             type="email"
             id="email"
             required
+            className="rounded h-[35px] px-2"
             ref={emailInputRef}
             onChange={() => setError({ password: false, user: false })}
           />
-          {error.user ? <p className={classes.error}>user not exist</p> : ""}
+          {error.user ? <p className="text-red-400">user not exist</p> : ""}
         </div>
-        <div className={classes.control}>
+        <div className="flex flex-col mb-3">
           <label htmlFor="password">Your Password</label>
           <input
             type="password"
             id="password"
             required
+            className="rounded h-[35px] px-2"
             onChange={() => setError({ password: false, user: false })}
             ref={passwordInputRef}
           />
           {error.password ? (
-            <p className={classes.error}>Incorrect Password</p>
+            <p className="text-red-400">Incorrect Password</p>
           ) : (
             ""
           )}
         </div>
-        <div className={classes.actions}>
+        <div className="flex w-full items-center justify-center">
           {loading ? (
             <div className="loader">Loading...</div>
           ) : (
-            <button>LogIn</button>
+            <button className="bg-[#ffffff6e] px-7 py-2 rounded">LogIn</button>
           )}
         </div>
       </form>
