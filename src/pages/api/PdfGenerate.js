@@ -4,7 +4,7 @@ const path = require("path");
 import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 const nodemailer = require("nodemailer");
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
 import handlers from "handlebars";
 import qrcode from "qrcode";
 import { connectToDatabase } from "../../lib/mongodb";
@@ -123,7 +123,9 @@ export default async function pdfGenerate(req, res) {
     });
 
     // simulate a chrome browser with puppeteer and navigate to a new page
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
     const page = await browser.newPage();
     const pdfName = name + date + passNo;
     const fPdfName = pdfName.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, "-");
