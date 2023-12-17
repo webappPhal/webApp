@@ -4,7 +4,6 @@ const path = require("path");
 import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 const nodemailer = require("nodemailer");
-import chromium from "chrome-aws-lambda";
 import puppeteer from "puppeteer";
 import handlers from "handlebars";
 import qrcode from "qrcode";
