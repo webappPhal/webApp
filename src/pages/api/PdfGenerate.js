@@ -4,8 +4,7 @@ const path = require("path");
 import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 const nodemailer = require("nodemailer");
-import puppeteer from "puppeteer-core";
-import chrome from "chrome-aws-lambda";
+const pdf = require("html-pdf");
 import handlers from "handlebars";
 import qrcode from "qrcode";
 import { connectToDatabase } from "../../lib/mongodb";
@@ -123,32 +122,47 @@ export default async function pdfGenerate(req, res) {
       qr,
     });
 
+    const pdfOptions = {
+      format: "Letter", // or your desired format
+      orientation: "portrait", // or "landscape"
+    };
     // simulate a chrome browser with puppeteer and navigate to a new page
-    const browser = await puppeteer.launch({
-      args: [...chrome.args, "--no-sandbox", "--disable-setuid-sandbox"],
-      executablePath: await chrome.executablePath,
-    });
-    const page = await browser.newPage();
+    // const browser = await puppeteer.launch({
+    //   headless: true,
+    // });
+    // const page = await browser.newPage();
     const pdfName = name + date + passNo;
     const fPdfName = pdfName.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, "-");
     console.log(fPdfName);
 
     // set our compiled html template as the pages content
     // then waitUntil the network is idle to make sure the content has been loaded
-    await page.setContent(html, { waitUntil: "networkidle0" });
+    // await page.setContent(html, { waitUntil: "networkidle0" });
 
     // convert the page to pdf with the .pdf() method
-    let pdf = await page.pdf({
-      width: "1700",
-      height: "1900",
-      printBackground: true,
+    // let pdf = await page.pdf({
+    //   width: "1700",
+    //   height: "1900",
+    //   printBackground: true,
+    // });
+    // console.log(pdf, "create");
+
+    const pdfBuffer = await new Promise((resolve, reject) => {
+      pdf.create(html, pdfOptions).toBuffer((err, buffer) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          resolve(buffer);
+        }
+      });
     });
-    console.log(pdf, "create");
-
+    console.log(pdfBuffer);
+    // Save the PDF buffer to a file or perform further operations
     fs.mkdirSync("./public/pdf", { recursive: true });
-    fs.writeFileSync(`./public/pdf/${fPdfName}.pdf`, pdf);
+    fs.writeFileSync(`./public/pdf/${fPdfName}.pdf`, pdfBuffer);
 
-    await browser.close();
+    // await browser.close();
     // Upload PDF to Google Drive
     const auth = new google.auth.GoogleAuth({
       credentials: {
