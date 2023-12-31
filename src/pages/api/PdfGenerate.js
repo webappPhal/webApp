@@ -123,7 +123,13 @@ export default async function pdfGenerate(req, res) {
       qr,
     });
     (async () => {
-      const browser = await puppeteer.launch();
+      const executablePath = await chromium.executablePath;
+
+      const browser = await puppeteer.launch({
+        args: chromium.args,
+        executablePath,
+      });
+
       console.log(browser.process().spawnargs[0]); // Log the executable path
       await browser.close();
     })();
