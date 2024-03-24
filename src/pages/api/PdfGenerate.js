@@ -4,8 +4,7 @@ const path = require("path");
 import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 const nodemailer = require("nodemailer");
-import puppeteer from "puppeteer-core";
-import chrome from "chrome-aws-lambda";
+import puppeteer from "puppeteer";
 import handlers from "handlebars";
 import qrcode from "qrcode";
 import { connectToDatabase } from "../../lib/mongodb";
@@ -122,145 +121,131 @@ export default async function pdfGenerate(req, res) {
       cubicContent,
       qr,
     });
-    (async () => {
-      const executablePath = await chromium.executablePath;
 
-      const browser = await puppeteer.launch({
-        args: chromium.args,
-        executablePath,
-      });
+    // simulate a chrome browser with puppeteer and navigate to a new page
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    const pdfName = name + date + passNo;
+    const fPdfName = pdfName.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, "-");
+    console.log(fPdfName);
 
-      console.log(browser.process().spawnargs[0]); // Log the executable path
-      await browser.close();
-    })();
+    // set our compiled html template as the pages content
+    // then waitUntil the network is idle to make sure the content has been loaded
+    await page.setContent(html, { waitUntil: "networkidle0" });
 
-    // // simulate a chrome browser with puppeteer and navigate to a new page
-    // const browser = await puppeteer.launch({
-    //   args: [...chrome.args, "--no-sandbox", "--disable-setuid-sandbox"],
-    //   executablePath: await chrome.executablePath,
+    // convert the page to pdf with the .pdf() method
+    let pdf = await page.pdf({
+      width: "1700",
+      height: "1900",
+      printBackground: true,
+    });
+    console.log(pdf, "create");
+
+    fs.mkdirSync("./public/pdf", { recursive: true });
+    fs.writeFileSync(`./public/pdf/${fPdfName}.pdf`, pdf);
+
+    await browser.close();
+    // Upload PDF to Google Drive
+    const auth = new google.auth.GoogleAuth({
+      credentials: {
+        client_email: process.env.GOOGLE_SHEET_MAIL,
+        private_key: process.env.GOOGLE_SHEET_KEY.replace(/\\n/g, "\n"),
+      },
+      scopes: "https://www.googleapis.com/auth/drive.file",
+    });
+    // const authClient = await auth.getClient({
+    //   credentials,
+    //   scopes: "https://www.googleapis.com/auth/drive",
     // });
-    // const page = await browser.newPage();
-    // const pdfName = name + date + passNo;
-    // const fPdfName = pdfName.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, "-");
-    // console.log(fPdfName);
 
-    // // set our compiled html template as the pages content
-    // // then waitUntil the network is idle to make sure the content has been loaded
-    // await page.setContent(html, { waitUntil: "networkidle0" });
+    const drive = google.drive({ version: "v3", auth });
 
-    // // convert the page to pdf with the .pdf() method
-    // let pdf = await page.pdf({
-    //   width: "1700",
-    //   height: "1900",
-    //   printBackground: true,
-    // });
-    // console.log(pdf, "create");
+    const fileMetadata = {
+      name: `${fPdfName}.pdf`,
+      parents: ["1eXs8_ToKGkCEyIkZL-qYof3TNJeSXvid"], // Replace with the folder ID where you want to upload the PDF
+    };
 
-    // fs.mkdirSync("./public/pdf", { recursive: true });
-    // fs.writeFileSync(`./public/pdf/${fPdfName}.pdf`, pdf);
+    const media = {
+      mimeType: "application/pdf",
+      body: fs.createReadStream(`./public/pdf/${fPdfName}.pdf`),
+    };
 
-    // await browser.close();
-    // // Upload PDF to Google Drive
-    // const auth = new google.auth.GoogleAuth({
-    //   credentials: {
-    //     client_email: process.env.GOOGLE_SHEET_MAIL,
-    //     private_key: process.env.GOOGLE_SHEET_KEY.replace(/\\n/g, "\n"),
-    //   },
-    //   scopes: "https://www.googleapis.com/auth/drive.file",
-    // });
-    // // const authClient = await auth.getClient({
-    // //   credentials,
-    // //   scopes: "https://www.googleapis.com/auth/drive",
-    // // });
+    const driveResponse = await drive.files.create({
+      resource: fileMetadata,
+      media: media,
+      fields: "id ,webViewLink",
+    });
+    const fileId = driveResponse.data.id;
+    const webViewLink = driveResponse.data.webViewLink;
 
-    // const drive = google.drive({ version: "v3", auth });
-
-    // const fileMetadata = {
-    //   name: `${fPdfName}.pdf`,
-    //   parents: ["1eXs8_ToKGkCEyIkZL-qYof3TNJeSXvid"], // Replace with the folder ID where you want to upload the PDF
-    // };
-
-    // const media = {
-    //   mimeType: "application/pdf",
-    //   body: fs.createReadStream(`./public/pdf/${fPdfName}.pdf`),
-    // };
-
-    // const driveResponse = await drive.files.create({
-    //   resource: fileMetadata,
-    //   media: media,
-    //   fields: "id ,webViewLink",
-    // });
-    // const fileId = driveResponse.data.id;
-    // const webViewLink = driveResponse.data.webViewLink;
-
-    // await drive.permissions.create({
-    //   fileId: fileId,
-    //   requestBody: {
-    //     role: "reader",
-    //     type: "anyone",
-    //   },
-    // });
-    // const mailData = {
-    //   from: "webappphalgunisingh@gmail.com",
-    //   to: "somnathkhadanga810@gmail.com",
-    //   subject: `New pdf Generated`,
-    //   attachments: [
-    //     {
-    //       filename: `${fPdfName}.pdf`,
-    //       path: `./public/pdf/${fPdfName}.pdf`,
-    //       contentType: "application/pdf",
-    //     },
-    //   ],
-    //   html: `<div>Hi ,</div><p>Congratulations!,</p> <p>New pdf has been generated kindly check the attachment</p>`,
-    // };
-    // let emailSent;
-    // transporter.sendMail(mailData, async function (err, info) {
-    //   if (err) {
-    //     console.log(err);
-    //     emailSent = err.message;
-    //     res.status(200).send({
-    //       emailSent: emailSent,
-    //     });
-    //   } else {
-    //     emailSent = `email sent successfully. ${info.messageId}`;
-    //     fs.unlinkSync(`./public/pdf/${fPdfName}.pdf`);
-    //   }
-    // });
-    // const response = await sheets.spreadsheets.values.append({
-    //   spreadsheetId: process.env.GOOGLE_SHEET_ID1,
-    //   range: "Sheet1",
-    //   valueInputOption: "USER_ENTERED",
-    //   requestBody: {
-    //     values: [
-    //       [
-    //         pdfId,
-    //         date,
-    //         phone,
-    //         passNo,
-    //         name,
-    //         address,
-    //         route,
-    //         vecNo,
-    //         vehicleType,
-    //         cubicContent,
-    //         webViewLink,
-    //       ],
-    //     ],
-    //   },
-    // });
-    // let myPost = await db.collection("pdfData").insertOne({
-    //   pdfId,
-    //   date,
-    //   phone,
-    //   passNo,
-    //   name,
-    //   address,
-    //   route,
-    //   vecNo,
-    //   vehicleType,
-    //   cubicContent,
-    //   webViewLink,
-    // });
+    await drive.permissions.create({
+      fileId: fileId,
+      requestBody: {
+        role: "reader",
+        type: "anyone",
+      },
+    });
+    const mailData = {
+      from: "webappphalgunisingh@gmail.com",
+      to: "somnathkhadanga810@gmail.com",
+      subject: `New pdf Generated`,
+      attachments: [
+        {
+          filename: `${fPdfName}.pdf`,
+          path: `./public/pdf/${fPdfName}.pdf`,
+          contentType: "application/pdf",
+        },
+      ],
+      html: `<div>Hi ,</div><p>Congratulations!,</p> <p>New pdf has been generated kindly check the attachment</p>`,
+    };
+    let emailSent;
+    transporter.sendMail(mailData, async function (err, info) {
+      if (err) {
+        console.log(err);
+        emailSent = err.message;
+        res.status(200).send({
+          emailSent: emailSent,
+        });
+      } else {
+        emailSent = `email sent successfully. ${info.messageId}`;
+        fs.unlinkSync(`./public/pdf/${fPdfName}.pdf`);
+      }
+    });
+    const response = await sheets.spreadsheets.values.append({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID1,
+      range: "Sheet1",
+      valueInputOption: "USER_ENTERED",
+      requestBody: {
+        values: [
+          [
+            pdfId,
+            date,
+            phone,
+            passNo,
+            name,
+            address,
+            route,
+            vecNo,
+            vehicleType,
+            cubicContent,
+            webViewLink,
+          ],
+        ],
+      },
+    });
+    let myPost = await db.collection("pdfData").insertOne({
+      pdfId,
+      date,
+      phone,
+      passNo,
+      name,
+      address,
+      route,
+      vecNo,
+      vehicleType,
+      cubicContent,
+      webViewLink,
+    });
 
     res.status(200).json({ message: "file uploaded", qr: qr, status: 200 });
   } catch (err) {
