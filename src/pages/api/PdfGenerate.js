@@ -67,6 +67,8 @@ export default async function pdfGenerate(req, res) {
     date,
     phone,
     passNo,
+    sourceAuction,
+    permitHolder,
     name,
     address,
     route,
@@ -81,23 +83,22 @@ export default async function pdfGenerate(req, res) {
   const formattedDate = formatDateString(date);
 
   const qrCodeData = {
-    pdfId,
+    pdfId: "",
     passNo,
     formattedDate,
     miningOffice: "BHADRAK",
-    quarry: "BUDHABALANGA RIVER SAND BED-III",
-    licenseeName: "PRIYNKA BEHERA",
+    quarry: sourceAuction,
+    licenseeName: permitHolder.toUpperCase(),
     mineral: "SAND",
     address: name + "," + address,
     route,
     vecNo,
-    cubicContent,
     length: "NA",
     height: "NA",
     breadth: "NA",
-    cubic: "3.00",
+    cubic: cubicContent,
     vehicleType,
-    phone,
+    phone: "",
   };
   const qr = await generateQR(qrCodeData);
   console.log(qrCodeData);
@@ -114,6 +115,8 @@ export default async function pdfGenerate(req, res) {
       phone,
       passNo,
       name,
+      sourceAuction,
+      permitHolder,
       address,
       route,
       vecNo,
@@ -138,6 +141,7 @@ export default async function pdfGenerate(req, res) {
       width: "1700",
       height: "1900",
       printBackground: true,
+      landscape: true,
     });
     console.log(pdf, "create");
 

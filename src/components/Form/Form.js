@@ -11,6 +11,8 @@ const YourFormComponent = () => {
   const [value, setValue] = useState();
   const [passNo, setPassNo] = useState("");
   const [name, setName] = useState("");
+  const [sourceAuction, setSourceAuction] = useState("");
+  const [permitHolder, setPermitHolder] = useState("");
   const [address, setAddress] = useState("");
   const [route, setRoute] = useState("");
   const [vecNo, setVecNo] = useState("");
@@ -39,15 +41,33 @@ const YourFormComponent = () => {
     "Hiwa- 10wheel - 12 cum",
   ];
 
+  const vehicleCumData = {
+    "Hiwa-10 wheels - 18 cum": "18CUM",
+    "Truck- 4 wheels": "4CUM",
+    "Tata 407 - 4 wheels": "4CUM",
+    "Tractor - 4 wheels": "4CUM",
+    "Pickup van - 4 wheel": "4CUM",
+    "Pickup van - 3 wheel": "4CUM",
+    "Hiwa- 10wheels- 16cum": "16CUM",
+    "Hiwa- 10wheels - 14cum": "14CUM",
+    "Hiwa- 10wheel - 14cum": "14CUM",
+    "Hiwa - 12wheels - 22cum": "22CUM",
+    "Hiwa - 12wheel - 18 cum": "18CUM",
+    "Hiwa - 6wheel - 10cum": "10CUM",
+    "Mini Hiwa- 6 wheel - 10cum": "10CUM",
+    "Mini Hiwa - 6 wheel-8cum": "8CUM",
+    "Tipper - 6wheel -6cum": "6CUM",
+    "Tipper - 6wheel - 5ucm": "5CUM",
+    "Hiwa- 10wheel - 12 cum": "12CUM",
+  };
   const handleVehicleTypeChange = (selectedVehicleType) => {
     setVehicleType(selectedVehicleType);
-
+    let cubicContent = "";
     // Calculate cubic content based on the selected vehicle type
     // You might want to replace this with your own logic
-    if (selectedVehicleType != "") {
-      setCubicContent("3.0");
-    } else {
-      setCubicContent("");
+    if (selectedVehicleType !== "") {
+      cubicContent = vehicleCumData[selectedVehicleType] || "";
+      setCubicContent(cubicContent);
     }
   };
 
@@ -62,6 +82,8 @@ const YourFormComponent = () => {
           phone: value,
           passNo,
           name,
+          sourceAuction,
+          permitHolder,
           address,
           route,
           vecNo,
@@ -154,6 +176,24 @@ const YourFormComponent = () => {
       <div>
         <input
           type="text"
+          value={sourceAuction}
+          className="focus:outline-none  border-solid border-slate-500 border-2 h-[35px] w-[260px] rounded  px-1 py-1"
+          placeholder="Name of the Quarry/Lease/Source of Auction"
+          onChange={(e) => setSourceAuction(e.target.value)}
+        />
+      </div>
+      <div>
+        <input
+          type="text"
+          value={permitHolder}
+          className="focus:outline-none  border-solid border-slate-500 border-2 h-[35px] w-[260px] rounded  px-1 py-1"
+          placeholder="Name of the Licensee/Lessee/Permit Holder/Auction Holder/Auction Purchaser"
+          onChange={(e) => setPermitHolder(e.target.value)}
+        />
+      </div>
+      <div>
+        <input
+          type="text"
           value={address}
           className="focus:outline-none  border-solid border-slate-500 border-2 h-[35px] w-[260px] rounded  px-1 py-1"
           placeholder="Enter Address"
@@ -211,7 +251,7 @@ const YourFormComponent = () => {
           <input
             type="text"
             value={cubicContent}
-            readOnly
+            onChange={(e) => handleVehicleTypeChange(e.target.value)}
             className="focus:outline-none  border-solid border-slate-500 border-2 h-[35px] w-[260px] rounded  px-1 py-1"
           />
         </div>
