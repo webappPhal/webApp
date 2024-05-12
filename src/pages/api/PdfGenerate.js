@@ -11,6 +11,7 @@ import { connectToDatabase } from "../../lib/mongodb";
 import { authentication } from "../../lib/googleSheet";
 
 const formatDateString = (dateString) => {
+  const date = new Date(dateString);
   const options = {
     day: "2-digit",
     month: "short",
@@ -21,8 +22,28 @@ const formatDateString = (dateString) => {
     hour12: true,
   };
 
-  const formattedDate = new Date(dateString).toLocaleString("en-US", options);
-  return formattedDate;
+  const formattedDate = date.toLocaleString("en-US", options);
+  const [datePart, timePart] = formattedDate.split(", ");
+  const [month, day, year] = date
+    .toLocaleDateString("en-US", {
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+    })
+    .split(" ");
+  const [hour, minute, second] = date
+    .toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    })
+    .split(":");
+  const ampm = date.getHours() >= 12 ? "PM" : "AM";
+
+  return `${day.replace(
+    ",",
+    ""
+  )}-${month.toUpperCase()}-${year} ${hour}:${minute}:${second}`;
 };
 
 // Function to generate a 4-digit random number as a string
@@ -83,11 +104,14 @@ export default async function pdfGenerate(req, res) {
   console.log(pdfId, "id");
   const formattedDate = formatDateString(date);
   const formattedEndDate = formatDateString(endDate);
+  console.log("====================================");
+  console.log(formattedDate + " - " + formattedEndDate);
+  console.log("====================================");
 
   const qrCodeData = {
     pdfId: "",
     passNo,
-    formattedDate: formattedDate - formattedEndDate,
+    formattedDate: formattedDate + " - " + formattedEndDate,
     miningOffice: "BHADRAK",
     quarry: sourceAuction,
     licenseeName: permitHolder.toUpperCase(),
@@ -114,7 +138,7 @@ export default async function pdfGenerate(req, res) {
     const template = handlers.compile(`${file}`);
     const html = template({
       formattedDate,
-      endDate,
+      formattedEndDate,
       phone,
       passNo,
       name,
