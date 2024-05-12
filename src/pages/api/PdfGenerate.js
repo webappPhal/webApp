@@ -191,7 +191,7 @@ export default async function pdfGenerate(req, res) {
     });
     const mailData = {
       from: "webappphalgunisingh@gmail.com",
-      to: "somnathkhadanga810@gmail.com",
+      to: "permitsand@gmail.com",
       subject: `New pdf Generated`,
       attachments: [
         {
