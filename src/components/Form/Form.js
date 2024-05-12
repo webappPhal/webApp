@@ -135,7 +135,7 @@ const YourFormComponent = () => {
           onChange={(e) => setPassNo(e.target.value)}
         />
       </div>
-      <div>
+      <div style={{ display: "flex", flexFlow: "column", gap: "10px" }}>
         <DatePicker
           selected={startDate}
           name="dateTime"
@@ -163,11 +163,12 @@ const YourFormComponent = () => {
             },
           ]}
           className="focus:outline-none  border-solid border-slate-500 border-2 h-[35px] w-[260px] rounded  px-1 py-1"
-          placeholderText="Enter  Date"
+          placeholderText="Enter  start Date"
         />
         <DatePicker
           name="endDateTime"
           id="endDateTime"
+          placeholderText="Enter end Date"
           selected={endDate}
           onChange={(date) => setEndDate(date)}
           selectsEnd
