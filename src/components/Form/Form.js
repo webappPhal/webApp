@@ -8,6 +8,7 @@ import PhoneInput from "react-phone-number-input";
 
 const YourFormComponent = () => {
   const [startDate, setStartDate] = useState();
+  const [endDate, setEndDate] = useState();
   const [value, setValue] = useState();
   const [passNo, setPassNo] = useState("");
   const [name, setName] = useState("");
@@ -79,6 +80,7 @@ const YourFormComponent = () => {
         method: "POST",
         body: JSON.stringify({
           date: startDate,
+          endDate: endDate,
           phone: value,
           passNo,
           name,
@@ -162,6 +164,33 @@ const YourFormComponent = () => {
           ]}
           className="focus:outline-none  border-solid border-slate-500 border-2 h-[35px] w-[260px] rounded  px-1 py-1"
           placeholderText="Enter  Date"
+        />
+        <DatePicker
+          name="endDateTime"
+          id="endDateTime"
+          selected={endDate}
+          onChange={(date) => setEndDate(date)}
+          selectsEnd
+          startDate={startDate}
+          endDate={endDate}
+          minDate={startDate}
+          popperModifiers={[
+            {
+              name: "offset",
+              options: {
+                offset: [5, 10],
+              },
+            },
+            {
+              name: "preventOverflow",
+              options: {
+                rootBoundary: "viewport",
+                tether: false,
+                altAxis: true,
+              },
+            },
+          ]}
+          className="focus:outline-none  border-solid border-slate-500 border-2 h-[35px] w-[260px] rounded  px-1 py-1"
         />
       </div>
       <div>

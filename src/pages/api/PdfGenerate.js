@@ -65,6 +65,7 @@ const transporter = nodemailer.createTransport({
 export default async function pdfGenerate(req, res) {
   const {
     date,
+    endDate,
     phone,
     passNo,
     sourceAuction,
@@ -81,11 +82,12 @@ export default async function pdfGenerate(req, res) {
   const pdfId = generateUniquePDFId();
   console.log(pdfId, "id");
   const formattedDate = formatDateString(date);
+  const formattedEndDate = formatDateString(endDate);
 
   const qrCodeData = {
     pdfId: "",
     passNo,
-    formattedDate,
+    formattedDate: formattedDate - formattedEndDate,
     miningOffice: "BHADRAK",
     quarry: sourceAuction,
     licenseeName: permitHolder.toUpperCase(),
@@ -112,6 +114,7 @@ export default async function pdfGenerate(req, res) {
     const template = handlers.compile(`${file}`);
     const html = template({
       formattedDate,
+      endDate,
       phone,
       passNo,
       name,
@@ -239,7 +242,7 @@ export default async function pdfGenerate(req, res) {
     });
     let myPost = await db.collection("pdfData").insertOne({
       pdfId,
-      date,
+      date: date - endDate,
       phone,
       passNo,
       name,
