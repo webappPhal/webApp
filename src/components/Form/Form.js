@@ -143,7 +143,7 @@ const YourFormComponent = () => {
           onChange={(date) => setStartDate(date)}
           showTimeSelect
           timeIntervals={15}
-          dateFormat="MMMM d, yyyy h:mm aa"
+          dateFormat="d MMMM, yyyy h:mm:ss aa"
           required
           popperPlacement="top"
           popperModifiers={[
@@ -170,6 +170,7 @@ const YourFormComponent = () => {
           id="endDateTime"
           placeholderText="Enter end Date"
           selected={endDate}
+          dateFormat="d MMMM, yyyy h:mm:ss aa"
           onChange={(date) => setEndDate(date)}
           selectsEnd
           startDate={startDate}
