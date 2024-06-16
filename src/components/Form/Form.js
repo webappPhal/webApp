@@ -60,6 +60,14 @@ const YourFormComponent = () => {
     "Tipper - 6wheel -6cum": "6",
     "Tipper - 6wheel - 5ucm": "5",
     "Hiwa- 10wheel - 12 cum": "12",
+    "Hiwa -  12Wheel -  25 cum": "25",
+    "Hiwa -  14Wheel -  24 cum": "24",
+    "Hiwa -  14Wheel -  25 cum": "25",
+    "Hiwa -  14Wheel -  26 cum": "26",
+    "Hiwa -  16Wheel -  26 cum": "26",
+    "Hiwa -  16Wheel -  25 cum": "25",
+    "Tractor -  4Wheel -  3 cum": "3",
+    "Truck -  6Wheel -  6 cum": "6",
   };
   const handleVehicleTypeChange = (selectedVehicleType) => {
     setVehicleType(selectedVehicleType);
